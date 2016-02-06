@@ -1,4 +1,4 @@
-package com.ibm.timetrackerweb.model;
+package com.ibm.timetrackerweb.model.obsolete;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Entity
+//@Entity
 public class MacAddress  implements Serializable{
 	
 	/**

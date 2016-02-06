@@ -1,4 +1,4 @@
-package com.ibm.timetrackerweb.model;
+package com.ibm.timetrackerweb.model.obsolete;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import javax.persistence.OneToMany;
 
 import com.ibm.timetrackerweb.util.DecimalFormatUtil;
 
-@Entity
+//@Entity(name = "com.dummy.myclass")
 public class ComputerConfig implements Serializable{
 	
 	/**
@@ -36,8 +36,8 @@ public class ComputerConfig implements Serializable{
 	@Column
 	private String currentDate;
 	
-	@OneToMany(targetEntity=MacAndIp.class, mappedBy="parent", fetch=FetchType.EAGER, cascade= CascadeType.ALL)
-	private List<MacAndIp>listMacs;
+	@OneToMany(targetEntity=MacAddress.class, mappedBy="parent", fetch=FetchType.EAGER, cascade= CascadeType.ALL)
+	private List<MacAddress>listMacs;
 	
 	public Integer getComputerId() {
 		return computerId;
@@ -55,7 +55,7 @@ public class ComputerConfig implements Serializable{
 		this.computerName = computerName;
 	}
 
-	public List<MacAndIp> getListMacs() {
+	public List<MacAddress> getListMacs() {
 		if(listMacs == null)
 		{
 			listMacs = new ArrayList<>();
@@ -63,7 +63,7 @@ public class ComputerConfig implements Serializable{
 		return listMacs;
 	}
 	
-	public void addMacAddress(MacAndIp mac, boolean writeToJson)
+	public void addMacAddress(MacAddress mac, boolean writeToJson)
 	{
 		getListMacs().add(mac);
 		if(writeToJson)
@@ -85,13 +85,19 @@ public class ComputerConfig implements Serializable{
 		getListMacs().clear();
 	}
 
-	public MacAndIp findMacWithIp(String macStr, String ipStr) {
+	public MacAddress findMacWithIp(String macStr, String ipStr) {
 		// TODO Auto-generated method stub
-		for(MacAndIp mac:getListMacs())
+		for(MacAddress mac:getListMacs())
 		{
-			if(mac.getMacAddress().equals(macStr) && mac.getIpAddress().equals(ipStr))
+			if(mac.getMacAddress().equals(macStr))
 			{
-				return mac;
+				for(IpAddress ip: mac.getAllIpAddress())
+				{
+					if(ip.getIpAddress().equals(ipStr))
+					{
+						return mac;
+					}
+				}
 			}
 		}
 		return null;
@@ -123,7 +129,7 @@ public class ComputerConfig implements Serializable{
 		double minuteD = (double)minutes/60;
 		
 		//return DecimalFormatUtil.getFormattedData(totalTime);
-		return hours + " hours " + minutes + " minutes";
+		return hours + " hours" + minutes + " minutes";
 	}
 
 	private String getLastEndTimeForDay() {
@@ -131,13 +137,16 @@ public class ComputerConfig implements Serializable{
 		if(getListMacs().size()>0)
 		{
 			String endTime = "00:00";
-			for(MacAndIp mac:getListMacs())
+			for(MacAddress mac:getListMacs())
 			{
-				String ipEndTime = mac.getEndTime();
-				if(ipEndTime.compareTo(endTime)>0)
+				for(IpAddress ip:mac.getAllIpAddress())
 				{
-					endTime = ipEndTime;
-				}
+					String ipEndTime = ip.getEndTime();
+					if(ipEndTime.compareTo(endTime)>0)
+					{
+						endTime = ipEndTime;
+					}
+				}//end for
 			}//end for
 			return endTime;
 		}
@@ -148,7 +157,7 @@ public class ComputerConfig implements Serializable{
 		// TODO Auto-generated method stub
 		if(getListMacs().size()>0)
 		{
-			return getListMacs().get(0).getStartTime();
+			return getListMacs().get(0).getAllIpAddress().get(0).getStartTime();
 		}
 		return null;
 	}

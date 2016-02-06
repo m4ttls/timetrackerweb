@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ibm.timetrackerweb.model.ComputerConfig;
-import com.ibm.timetrackerweb.model.IpAddress;
-import com.ibm.timetrackerweb.model.MacAddress;
+import com.ibm.timetrackerweb.model.MacAndIp;
 import com.ibm.timetrackerweb.repository.ComputerConfigRepository;
 
 @RestController
@@ -26,34 +26,67 @@ public class TimeTrackerController {
 		return repo.findAll();
 	}
 	
-	@RequestMapping(value="/find/{param1}/{param2}",method = RequestMethod.GET)
-	public List<ComputerConfig> findItems(@PathVariable String param1, @PathVariable String param2) {
-		if(param2.equals("name"))
-		{
-			return repo.findByComputerName(param1);
-		}else if(param2.equals("date"))
-		{
-			return repo.findByCurrentDate(param1);
-		}else
-		{
-			return repo.findByComputerNameAndCurrentDate(param1, param2);
-		}
+	@RequestMapping(value="/findbyname/{name}",method = RequestMethod.GET)
+	public List<ComputerConfig> findItemsByName(@PathVariable String name) {
+		return repo.findByComputerName(name);
 	}
 	
-	@RequestMapping(value="/add",method = RequestMethod.POST)
-	public String addItem(@RequestBody ComputerConfig item) {
-		item.setComputerId(null);
-		for(MacAddress mac:item.getListMacs())
+	@RequestMapping(value="/findbydate/{date}",method = RequestMethod.GET)
+	public List<ComputerConfig> findItemsByDate(@PathVariable String date) {
+		return repo.findByCurrentDate(date);
+	}
+	
+	@RequestMapping(value="/find",method = RequestMethod.GET)
+	public List<ComputerConfig> findItemsByDate(@RequestParam(value="name", required=false) String name,
+	        @RequestParam(value="date", required=false) String date) {
+		if(name == null && date == null)
 		{
-			mac.setId(null);
-			mac.setParent(item);
-			for(IpAddress ip:mac.getAllIpAddress())
+			return repo.findAll();
+		}
+		else if(name == null && date != null)
+		{
+			return repo.findByCurrentDate(date);
+		}
+		else if(name != null && date == null)
+		{
+			return repo.findByComputerName(name);
+		}
+		return repo.findByComputerNameAndCurrentDate(name,date);
+		
+	}
+	
+	@RequestMapping(value="/save",method = RequestMethod.POST)
+	public String addItem(@RequestBody ComputerConfig item) {
+		List<ComputerConfig>list = repo.findByComputerNameAndCurrentDate(item.getComputerName(), item.getCurrentDate());
+		ComputerConfig toBeSaved = null;
+		if(list.size() > 0)
+		{
+			toBeSaved = list.get(0);
+			for(MacAndIp mip:item.getListMacs())
 			{
-				ip.setId(null);
-				ip.setParent(mac);
+				MacAndIp existing = toBeSaved.findMacWithIp(mip.getMacAddress(), mip.getIpAddress());
+				if(existing == null)
+				{
+					toBeSaved.addMacAddress(mip, false);
+				}
+				else
+				{
+					existing.setEndTime(mip.getEndTime());
+				}
 			}
 		}
-		ComputerConfig savedData = repo.saveAndFlush(item);
+		else
+		{
+			toBeSaved = item;
+			toBeSaved.setComputerId(null);
+			for(MacAndIp mac:toBeSaved.getListMacs())
+			{
+				mac.setId(null);
+				mac.setParent(toBeSaved);
+			}
+		}
+		
+		ComputerConfig savedData = repo.saveAndFlush(toBeSaved);
 		return "success";
 	}
 
