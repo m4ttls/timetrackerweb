@@ -1,11 +1,11 @@
 'use strict';
 
-App.controller('TimeTrackerController', ['$scope', 'TimeTrackerService','param1','param2', function($scope, TimeTrackerService,param1,param2) {
+App.controller('TimeTrackerController', ['$scope', 'TimeTrackerService', function($scope, TimeTrackerService) {
           var self = this;
           self.compconfig={id:null,computerName:'',date:'',totalTime:''};
           self.compconfigs=[];
               
-          self.fetchData = function(param1,param2){
+          self.fetchData = function(TimeTrackerService,param1,param2){
         	  TimeTrackerService.fetchData(param1,param2)
                   .then(
       					       function(d) {
@@ -47,10 +47,10 @@ App.controller('TimeTrackerController', ['$scope', 'TimeTrackerService','param1'
                   );
           };*/
 
-          self.fetchData('sarwesh', '05-Feb-2016');
+          self.fetchData(TimeTrackerService,'sarwesh', '05-Feb-2016');
           
           self.search = function(param1,param2) {
-        	  self.fetchData(param1, param2);
+        	  self.fetchData(TimeTrackerService,param1, param2);
               self.reset();
           };
 

@@ -1,22 +1,22 @@
 'use strict';
 
-App.factory('TimeTrackerService', ['$http', '$q','name', 'date', function($http, $q,name,date){
+App.factory('TimeTrackerService', ['$http', '$q', function($http, $q){
 
 	return {
 		
-			fetchData: function(name,date) {
-				url = '/timetracker/';
-				if(name != '' && date != '')
+			fetchData: function(param1,param2) {
+				var url = '/timetracker/';
+				if(param1 != '' && param2 != '')
 				{
-					url = url + 'find/' + name + '/' + date;
+					url = url + 'find?name=' + param1 + '&date=' + param2;
 				}
-				else if(name != '' && date == '')
+				else if(param1 != '' && param2 == '')
 				{
-					url = url + 'findbyname/' + name ;
+					url = url + 'find?name=' + param1 ;
 				}
-				else if(name == '' && date != '')
+				else if(param1 == '' && param2 != '')
 				{
-					url = url + 'findbydate/' + date ;
+					url = url + 'find?date=' + param2 ;
 				}
 				else
 				{
@@ -76,4 +76,5 @@ App.factory('TimeTrackerService', ['$http', '$q','name', 'date', function($http,
 		
 	};
 
-}]);
+}
+]);
