@@ -1,6 +1,6 @@
 'use strict';
 
-App.controller('TimeTrackerController', ['$scope', 'TimeTrackerService', function($scope, TimeTrackerService) {
+App.controller('TimeTrackerController', ['$scope', 'TimeTrackerService','param1','param2', function($scope, TimeTrackerService,param1,param2) {
           var self = this;
           self.compconfig={id:null,computerName:'',date:'',totalTime:''};
           self.compconfigs=[];

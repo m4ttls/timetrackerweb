@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ibm.timetrackerweb.model.ComputerConfig;
 import com.ibm.timetrackerweb.model.MacAndIp;
 import com.ibm.timetrackerweb.repository.ComputerConfigRepository;
+import com.ibm.timetrackerweb.util.DateUtil;
 
 @RestController
 @RequestMapping("/timetracker")
@@ -57,7 +58,10 @@ public class TimeTrackerController {
 	
 	@RequestMapping(value="/save",method = RequestMethod.POST)
 	public String addItem(@RequestBody ComputerConfig item) {
+		String currentDate = DateUtil.getFormattedDate("dd-MMM-yyyy");
+		String currentTime = DateUtil.getFormattedDate("HH:mm");
 		List<ComputerConfig>list = repo.findByComputerNameAndCurrentDate(item.getComputerName(), item.getCurrentDate());
+		//List<ComputerConfig>list = repo.findByComputerNameAndCurrentDate(item.getComputerName(), currentDate);
 		ComputerConfig toBeSaved = null;
 		if(list.size() > 0)
 		{
